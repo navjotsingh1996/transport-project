@@ -12,7 +12,7 @@ public class InvoiceDto {
     private final long id;
 
     @NonNull
-    private final long loadNumber;
+    private final String loadNumber;
 
     private final LocalDate date;
 

@@ -65,13 +65,13 @@ public class InvoicingManager implements InvoiceService {
         return toDto(invoice);
     }
 
-    private String getFileName(CompanyInfo info, long loadNumber) {
+    private String getFileName(CompanyInfo info, String loadNumber) {
         List<String> companyName = Arrays.asList(info.getName().split(" "));
         String filename = "";
         for (String f : companyName) {
             filename += f.charAt(0);
         }
-        return INVOICE_PDS_PATH + filename + ' ' + Long.toString(loadNumber) + ".pdf";
+        return INVOICE_PDS_PATH + filename + ' ' + loadNumber + ".pdf";
     }
 
     private String createInvoicePdf(InvoiceDto invoice) {

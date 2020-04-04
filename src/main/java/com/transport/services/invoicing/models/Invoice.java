@@ -22,7 +22,7 @@ public class Invoice {
     private long id;
 
     @NonNull
-    private long loadNumber;
+    private String loadNumber;
 
     @NonNull
     @JsonDeserialize(using = LocalDateDeserializer.class)
