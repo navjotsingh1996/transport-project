@@ -1,6 +1,10 @@
 package com.transport.services.invoicing;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.transport.services.invoicing.models.CompanyInfo;
 import com.transport.services.invoicing.models.Invoice;
 import com.transport.services.invoicing.models.InvoiceDto;
 import com.transport.services.invoicing.models.InvoicingRepository;
@@ -9,7 +13,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -19,6 +27,8 @@ public class InvoicingManager implements InvoiceService {
 
     @NonNull
     private final InvoicingRepository ir;
+
+    private static final String INVOICE_PDS_PATH = "documents/invoices/";
 
     /**
      * Convert from a dto to entity
@@ -41,10 +51,11 @@ public class InvoicingManager implements InvoiceService {
                 entity.getStops(), entity.getBalances());
     }
 
-    public long createInvoice(InvoiceDto invoice) {
+    public String createInvoice(InvoiceDto invoice) {
         toEntity(invoice);
         // Save the company info
-        return ir.save(toEntity(invoice)).getId();
+        ir.save(toEntity(invoice));
+        return createInvoicePdf(invoice);
     }
 
     // TODO: NEEDS LOCALIZATION
@@ -52,5 +63,32 @@ public class InvoicingManager implements InvoiceService {
         Invoice invoice = ir.findById(id).orElseThrow(() ->
                 new NoSuchElementException("Unable to find Invoice with " + id + " id"));
         return toDto(invoice);
+    }
+
+    private String getFileName(CompanyInfo info, long loadNumber) {
+        List<String> companyName = Arrays.asList(info.getName().split(" "));
+        String filename = "";
+        for (String f : companyName) {
+            filename += f.charAt(0);
+        }
+        return INVOICE_PDS_PATH + filename + ' ' + Long.toString(loadNumber) + ".pdf";
+    }
+
+    private String createInvoicePdf(InvoiceDto invoice) {
+
+        Document document = new Document();
+        String fileName = getFileName(invoice.getBillTo(), invoice.getLoadNumber());
+        try {
+            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
+            document.open();
+            document.add(new Paragraph("A Hello World PDF document."));
+            document.close();
+            writer.close();
+        } catch (DocumentException e) {
+            log.error("Something is wrong with the document", e);
+        } catch (FileNotFoundException e) {
+            log.error("Unable to find file", e);
+        }
+        return fileName;
     }
 }

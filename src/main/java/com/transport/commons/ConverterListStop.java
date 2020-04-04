@@ -60,7 +60,6 @@ public class ConverterListStop implements AttributeConverter<List<Stop>, String>
                         java.nio.charset.StandardCharsets.UTF_8.toString()));
                 JSONObject dateStr = str.getJSONObject("date");
                 String dateFormatted = getDate(dateStr);
-                log.error(dateFormatted);
                 LocalDate date = LocalDate.parse(dateFormatted);
                 Stop realStop = new Stop(date, str.getString("name"), str.getString("city"),
                         str.getString("state"), str.getInt("zip"), Stop.StopType.valueOf(str.getString("type")));

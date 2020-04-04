@@ -52,6 +52,8 @@ dependencies {
     implementation('org.javassist:javassist:3.23.1-GA')
 	// https://mvnrepository.com/artifact/org.json/json
 	implementation('org.json:json:20090211')
+	// https://mvnrepository.com/artifact/com.itextpdf/itextpdf
+	implementation('com.itextpdf:itextpdf:5.0.6')
 
 	// Lombok autogenerates things like getters and setters
 	compileOnly('org.projectlombok:lombok')
