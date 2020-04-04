@@ -17,11 +17,11 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 bootJar {
-	baseName = 'com-okta-springbootjpa'
+	baseName = 'com-transport-springbootjpa'
 	version =  '0.1.0'
 }
 
-group = 'com.okta.springbootjpa'
+group = 'com.transport.springbootjpa'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -44,6 +44,14 @@ dependencies {
 
 	// PostgresSQL-specific connector for JPA
 	implementation('org.postgresql:postgresql:9.4-1206-jdbc42')
+	// JAX-B dependencies for JDK 9+
+	implementation('jakarta.xml.bind:jakarta.xml.bind-api:2.3.2')
+	implementation('org.glassfish.jaxb:jaxb-runtime:2.3.2')
+
+	// https://mvnrepository.com/artifact/org.javassist/javassist
+    implementation('org.javassist:javassist:3.23.1-GA')
+	// https://mvnrepository.com/artifact/org.json/json
+	implementation('org.json:json:20090211')
 
 	// Lombok autogenerates things like getters and setters
 	compileOnly('org.projectlombok:lombok')
