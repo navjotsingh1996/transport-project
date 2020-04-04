@@ -11,6 +11,8 @@ public class TotalInvoiceBalance {
     @NonNull
     private double rateAmount;
 
+    private boolean truckorderNotUsed;
+
     private double detention;
 
     private double layover;
