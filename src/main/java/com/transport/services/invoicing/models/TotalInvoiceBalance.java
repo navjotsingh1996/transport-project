@@ -1,5 +1,6 @@
 package com.transport.services.invoicing.models;
 
+import lombok.NonNull;
 import lombok.Value;
 
 import javax.persistence.Embeddable;
@@ -7,6 +8,7 @@ import javax.persistence.Embeddable;
 @Value
 @Embeddable
 public class TotalInvoiceBalance {
+    @NonNull
     private double rateAmount;
 
     private double detention;
