@@ -25,10 +25,9 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class InvoicingManager implements InvoiceService {
 
+    private static final String INVOICE_PDS_PATH = "documents/invoices/";
     @NonNull
     private final InvoicingRepository ir;
-
-    private static final String INVOICE_PDS_PATH = "documents/invoices/";
 
     /**
      * Convert from a dto to entity

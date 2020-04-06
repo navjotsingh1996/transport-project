@@ -54,6 +54,9 @@ dependencies {
 	implementation('org.json:json:20090211')
 	// https://mvnrepository.com/artifact/com.itextpdf/itextpdf
 	implementation('com.itextpdf:itextpdf:5.0.6')
+	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf
+	implementation('org.springframework.boot:spring-boot-starter-thymeleaf:2.1.3.RELEASE')
+
 
 	// Lombok autogenerates things like getters and setters
 	compileOnly('org.projectlombok:lombok')
