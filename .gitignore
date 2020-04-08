@@ -25,5 +25,10 @@
 /nbdist/
 /.nb-gradle/
 
+### vscode ###
+.vscode/*
+
+bin/
+
 ## Invoices created ##
 documents/invoices/
