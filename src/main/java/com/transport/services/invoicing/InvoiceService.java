@@ -2,6 +2,8 @@ package com.transport.services.invoicing;
 
 import com.transport.services.invoicing.models.InvoiceDto;
 
+import java.util.List;
+
 public interface InvoiceService {
 
     /**
@@ -19,4 +21,23 @@ public interface InvoiceService {
      * @return invoice dto
      */
     InvoiceDto getInvoice(long id);
+
+    /**
+     * Gets all Invoices
+     * @return all Invoices
+     */
+    List<InvoiceDto> getAllInvoices();
+
+    /**
+     * Delete all invoices with the given id
+     * @param ids ids to be deleted
+     */
+    void deleteInvoices(List<Long> ids);
+
+    /**
+     * Editing a list of invoices
+     * @param invoices invoices to be edited
+     * @return invoice ids that were edited
+     */
+    List<Long> editInvoices(List<InvoiceDto> invoices);
 }

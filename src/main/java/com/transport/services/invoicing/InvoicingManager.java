@@ -16,9 +16,11 @@ import org.springframework.stereotype.Service;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -62,6 +64,19 @@ public class InvoicingManager implements InvoiceService {
         Invoice invoice = ir.findById(id).orElseThrow(() ->
                 new NoSuchElementException("Unable to find Invoice with " + id + " id"));
         return toDto(invoice);
+    }
+
+    public List<InvoiceDto> getAllInvoices() {
+        return ir.findAll().stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    public void deleteInvoices(List<Long> ids) {
+        ir.findAllById(ids).forEach(ir::delete);
+    }
+
+    public List<Long> editInvoices(List<InvoiceDto> invoices) {
+        return ir.saveAll(invoices.stream().map(this::toEntity).collect(Collectors.toList()))
+                .stream().map(Invoice::getId).collect(Collectors.toList());
     }
 
     private String getFileName(CompanyInfo info, String loadNumber) {

@@ -15,10 +15,12 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "invoice")
+@SequenceGenerator(name = "SequenceIdGenerator",
+        sequenceName = "SEQ_ID_GEN", initialValue = 30000)
 public class Invoice {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(generator  = "SequenceIdGenerator")
     private long id;
 
     @NonNull
