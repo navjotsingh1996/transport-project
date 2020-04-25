@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +39,11 @@ public class InvoicingManager implements InvoiceService {
      * @return an entity from the dto
      */
     Invoice toEntity(InvoiceDto dto) {
-        return new Invoice(dto.getLoadNumber(), LocalDate.now(), dto.getBillTo(), dto.getStops(), dto.getBalances());
+        long date = Instant.now().toEpochMilli();
+        if (dto.getDate() != null) {
+            date = dto.getDate();
+        }
+        return new Invoice(dto.getLoadNumber(), date, dto.getBillTo(), dto.getStops(), dto.getBalances());
     }
 
     /**

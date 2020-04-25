@@ -1,15 +1,10 @@
 package com.transport.services.invoicing.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.transport.commons.ConverterListStop;
 import lombok.Data;
 import lombok.NonNull;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -20,16 +15,14 @@ import java.util.List;
 public class Invoice {
 
     @Id
-    @GeneratedValue(generator  = "SequenceIdGenerator")
+    @GeneratedValue(generator = "SequenceIdGenerator")
     private long id;
 
     @NonNull
     private String loadNumber;
 
     @NonNull
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    @JsonSerialize(using = LocalDateSerializer.class)
-    private LocalDate date;
+    private Long date;
 
     @NonNull
     @Embedded

@@ -3,12 +3,10 @@ package com.transport.services.invoicing.models;
 import lombok.NonNull;
 import lombok.Value;
 
-import java.time.LocalDate;
-
 @Value
 public class Stop {
     @NonNull
-    private LocalDate date;
+    private Long date;
     @NonNull
     private String name;
     @NonNull
