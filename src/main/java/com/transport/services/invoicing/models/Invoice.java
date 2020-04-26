@@ -1,8 +1,10 @@
 package com.transport.services.invoicing.models;
 
 import com.transport.commons.ConverterListStop;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.List;
 @Table(name = "invoice")
 @SequenceGenerator(name = "SequenceIdGenerator",
         sequenceName = "SEQ_ID_GEN", initialValue = 30000)
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class Invoice {
 
     @Id
@@ -21,8 +25,7 @@ public class Invoice {
     @NonNull
     private String loadNumber;
 
-    @NonNull
-    private Long date;
+    private long date;
 
     @NonNull
     @Embedded
@@ -36,5 +39,14 @@ public class Invoice {
     @NonNull
     @Embedded
     private TotalInvoiceBalance balances;
+
+    public Invoice(String loadNumber, long date, CompanyInfo billTo, List<Stop> stops, TotalInvoiceBalance balances) {
+        this.date = date;
+        this.loadNumber = loadNumber;
+        this.date = date;
+        this.billTo = billTo;
+        this.stops = stops;
+        this.balances = balances;
+    }
 
 }

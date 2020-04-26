@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -24,26 +25,29 @@ public class InvoicingController {
     @NonNull
     private final InvoicingManager im;
 
+    private static ResponseEntity<InputStreamResource> downloadPdf(File file) throws FileNotFoundException {
+        HttpHeaders respHeaders = new HttpHeaders();
+        MediaType mediaType = MediaType.parseMediaType("application/pdf");
+        respHeaders.setContentType(mediaType);
+        respHeaders.setContentLength(file.length());
+        respHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, respHeaders, HttpStatus.OK);
+    }
+
     /**
      * creates a new invoice
      *
      * @param invoice new invoice that is to be created
-     * @return id of the new invoice
+     * @return the new pdf
      */
     @PostMapping("/invoice")
     public ResponseEntity<InputStreamResource> createInvoice(@RequestBody InvoiceDto invoice) {
         try {
-            File file = new File(im.createInvoice(invoice));
-            HttpHeaders respHeaders = new HttpHeaders();
-            MediaType mediaType = MediaType.parseMediaType("application/pdf");
-            respHeaders.setContentType(mediaType);
-            respHeaders.setContentLength(file.length());
-            respHeaders.setContentDispositionFormData("attachment", file.getName());
-            InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
-            return new ResponseEntity<InputStreamResource>(isr, respHeaders, HttpStatus.OK);
+            return downloadPdf( new File(im.createInvoice(invoice)));
         } catch (Exception e) {
             log.error("Unable to download pdf", e);
-            return new ResponseEntity<InputStreamResource>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -72,18 +76,25 @@ public class InvoicingController {
      * Delete all invoices with the given ids
      * @param ids ids to be deleted
      */
-    @DeleteMapping("/invoice")
+    @PutMapping("/invoice/delete")
     public void deleteInvoices(@RequestBody List<Long> ids) {
+        log.error("Controller Something");
+        log.error(ids.toString());
         im.deleteInvoices(ids);
     }
 
     /**
-     * Edit and update an invoices in the database
-     * @param invoices that were edited and need to be updated
-     * @return id list of edited invoices
+     * Edit and update an invoice in the database
+     * @param invoice that needs to be updated
+     * @return the new pdf
      */
     @PutMapping("/invoice")
-    public List<Long> editInvoices(@RequestBody List<InvoiceDto> invoices){
-        return im.editInvoices(invoices);
+    public ResponseEntity<InputStreamResource> editInvoices(@RequestBody InvoiceDto invoice){
+        try {
+            return downloadPdf( new File(im.editInvoice(invoice)));
+        } catch (Exception e) {
+            log.error("Unable to download pdf", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

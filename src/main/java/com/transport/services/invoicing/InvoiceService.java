@@ -10,7 +10,7 @@ public interface InvoiceService {
      * This function creates an invoice and adds it to the database
      *
      * @param invoice to be added to the database
-     * @return name of the invoice
+     * @return path to pdf
      */
     String createInvoice(InvoiceDto invoice);
 
@@ -35,9 +35,9 @@ public interface InvoiceService {
     void deleteInvoices(List<Long> ids);
 
     /**
-     * Editing a list of invoices
-     * @param invoices invoices to be edited
-     * @return invoice ids that were edited
+     * updating an existing invoice
+     * @param invoice invoice to be edited
+     * @return path to pdf
      */
-    List<Long> editInvoices(List<InvoiceDto> invoices);
+    String editInvoice(InvoiceDto invoice);
 }

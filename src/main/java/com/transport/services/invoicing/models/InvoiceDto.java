@@ -14,7 +14,7 @@ public class InvoiceDto {
     @NonNull
     private final String loadNumber;
 
-    private final Long date;
+    private final long date;
 
     @NonNull
     private final CompanyInfo billTo;

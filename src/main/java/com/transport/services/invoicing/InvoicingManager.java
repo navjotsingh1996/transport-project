@@ -38,10 +38,13 @@ public class InvoicingManager implements InvoiceService {
      * @param dto to be converted
      * @return an entity from the dto
      */
-    Invoice toEntity(InvoiceDto dto) {
+    private static Invoice toEntity(InvoiceDto dto) {
         long date = Instant.now().toEpochMilli();
-        if (dto.getDate() != null) {
+        if (dto.getDate() != 0) {
             date = dto.getDate();
+        }
+        if (dto.getId() != 0) {
+            return new Invoice(dto.getId(), dto.getLoadNumber(), date, dto.getBillTo(), dto.getStops(), dto.getBalances());
         }
         return new Invoice(dto.getLoadNumber(), date, dto.getBillTo(), dto.getStops(), dto.getBalances());
     }
@@ -52,36 +55,40 @@ public class InvoicingManager implements InvoiceService {
      * @param entity to be converted
      * @return a dto from the entity
      */
-    InvoiceDto toDto(Invoice entity) {
+    private static InvoiceDto toDto(Invoice entity) {
         return new InvoiceDto(entity.getId(), entity.getLoadNumber(), entity.getDate(), entity.getBillTo(),
                 entity.getStops(), entity.getBalances());
     }
 
+    @Override
     public String createInvoice(InvoiceDto invoice) {
         toEntity(invoice);
-        // Save the company info
         ir.save(toEntity(invoice));
         return createInvoicePdf(invoice);
     }
 
     // TODO: NEEDS LOCALIZATION
+    @Override
     public InvoiceDto getInvoice(long id) {
         Invoice invoice = ir.findById(id).orElseThrow(() ->
                 new NoSuchElementException("Unable to find Invoice with " + id + " id"));
         return toDto(invoice);
     }
 
+    @Override
     public List<InvoiceDto> getAllInvoices() {
-        return ir.findAll().stream().map(this::toDto).collect(Collectors.toList());
+        return ir.findAll().stream().map(inv -> toDto(inv)).collect(Collectors.toList());
     }
 
+    @Override
     public void deleteInvoices(List<Long> ids) {
         ir.findAllById(ids).forEach(ir::delete);
     }
 
-    public List<Long> editInvoices(List<InvoiceDto> invoices) {
-        return ir.saveAll(invoices.stream().map(this::toEntity).collect(Collectors.toList()))
-                .stream().map(Invoice::getId).collect(Collectors.toList());
+    @Override
+    public String editInvoice(InvoiceDto invoice) {
+        ir.save(toEntity(invoice));
+        return createInvoicePdf(invoice);
     }
 
     private String getFileName(CompanyInfo info, String loadNumber) {
