@@ -11,7 +11,7 @@ public class TotalInvoiceBalance {
     @NonNull
     private Double rateAmount;
 
-    private boolean truckorderNotUsed;
+    private boolean truckOrderNotUsed;
 
     private double detention;
 
@@ -21,9 +21,11 @@ public class TotalInvoiceBalance {
 
     private double extraStop;
 
+    private double lumper;
+
     private double other;
 
     public double getTotalBalance() {
-        return rateAmount + detention + layover + advance + extraStop + other;
+        return rateAmount + detention + layover + advance + extraStop + other + lumper;
     }
 }

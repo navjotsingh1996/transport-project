@@ -25,6 +25,12 @@ public class InvoicingController {
     @NonNull
     private final InvoicingManager im;
 
+    /**
+     * Takes in a File and returns a pdf responseEntity
+     * @param file to be sent by the controller
+     * @return ResponseEntity (pdf file)
+     * @throws FileNotFoundException if the file is not found
+     */
     private static ResponseEntity<InputStreamResource> downloadPdf(File file) throws FileNotFoundException {
         HttpHeaders respHeaders = new HttpHeaders();
         MediaType mediaType = MediaType.parseMediaType("application/pdf");
@@ -52,7 +58,7 @@ public class InvoicingController {
     }
 
     /**
-     * gets invoice details for a specified invoice
+     * Gets invoice details for a specified invoice
      *
      * @param id of invoices
      * @return invoice details
@@ -64,7 +70,6 @@ public class InvoicingController {
 
     /**
      * Gets all of the invoices
-     *
      * @return a list of invoices
      */
     @GetMapping("/invoice")
@@ -78,8 +83,6 @@ public class InvoicingController {
      */
     @PutMapping("/invoice/delete")
     public void deleteInvoices(@RequestBody List<Long> ids) {
-        log.error("Controller Something");
-        log.error(ids.toString());
         im.deleteInvoices(ids);
     }
 

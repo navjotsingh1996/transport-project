@@ -38,13 +38,20 @@ public class InvoicingManager implements InvoiceService {
      * @param dto to be converted
      * @return an entity from the dto
      */
-    private static Invoice toEntity(InvoiceDto dto) {
+    private Invoice toEntity(InvoiceDto dto) {
         long date = Instant.now().toEpochMilli();
         if (dto.getDate() != 0) {
             date = dto.getDate();
         }
         if (dto.getId() != 0) {
-            return new Invoice(dto.getId(), dto.getLoadNumber(), date, dto.getBillTo(), dto.getStops(), dto.getBalances());
+            Invoice inv = ir.findById(dto.getId()).orElseThrow(() ->
+                    new NoSuchElementException("Unable to find Invoice with " + dto.getId() + " id"));
+            inv.setLoadNumber(dto.getLoadNumber());
+            inv.setDate(date);
+            inv.setBillTo(dto.getBillTo());
+            inv.setStops(dto.getStops());
+            inv.setBalances(dto.getBalances());
+            return inv;
         }
         return new Invoice(dto.getLoadNumber(), date, dto.getBillTo(), dto.getStops(), dto.getBalances());
     }
@@ -67,7 +74,6 @@ public class InvoicingManager implements InvoiceService {
         return createInvoicePdf(invoice);
     }
 
-    // TODO: NEEDS LOCALIZATION
     @Override
     public InvoiceDto getInvoice(long id) {
         Invoice invoice = ir.findById(id).orElseThrow(() ->
@@ -77,7 +83,7 @@ public class InvoicingManager implements InvoiceService {
 
     @Override
     public List<InvoiceDto> getAllInvoices() {
-        return ir.findAll().stream().map(inv -> toDto(inv)).collect(Collectors.toList());
+        return ir.findAll().stream().map(InvoicingManager::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -93,13 +99,18 @@ public class InvoicingManager implements InvoiceService {
 
     private String getFileName(CompanyInfo info, String loadNumber) {
         List<String> companyName = Arrays.asList(info.getName().split(" "));
-        String filename = "";
+        StringBuilder filename = new StringBuilder(10);
         for (String f : companyName) {
-            filename += f.charAt(0);
+            filename.append(f.charAt(0));
         }
         return INVOICE_PDS_PATH + filename + ' ' + loadNumber + ".pdf";
     }
 
+    /**
+     * Creates Invoice from InvoiceDto data
+     * @param invoice to be created
+     * @return a file containing the newly created invoice
+     */
     private String createInvoicePdf(InvoiceDto invoice) {
 
         Document document = new Document();
