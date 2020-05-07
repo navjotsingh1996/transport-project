@@ -13,6 +13,7 @@ public class Stop {
     private String city;
     @NonNull
     private String state;
+    private String streetAddress;
     private int zip;
     @NonNull
     private StopType type;

@@ -40,8 +40,13 @@ public class ConverterListStop implements AttributeConverter<List<Stop>, String>
             try {
                 JSONObject str = new JSONObject(URLDecoder.decode(stop,
                         java.nio.charset.StandardCharsets.UTF_8.toString()));
+                String streetAddress = "";
+                if (str.has("streetAddress")) {
+                    streetAddress = str.getString("streetAddress");
+                }
                 Stop realStop = new Stop(str.getLong("date"), str.getString("name"), str.getString("city"),
-                        str.getString("state"), str.getInt("zip"), Stop.StopType.valueOf(str.getString("type")));
+                        str.getString("state"), streetAddress, str.getInt("zip"),
+                        Stop.StopType.valueOf(str.getString("type")));
                 realData.add(realStop);
             } catch (Exception e) {
                 log.error("Unable to unstringify stop from DB", e);
