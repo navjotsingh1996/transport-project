@@ -1,8 +1,6 @@
 package com.transport.services.invoicing.models;
 
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 import javax.persistence.Embeddable;

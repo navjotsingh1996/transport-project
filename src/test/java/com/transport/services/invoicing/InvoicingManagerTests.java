@@ -59,4 +59,19 @@ public class InvoicingManagerTests {
         assertThat(im.createInvoice(testInvDto)).isEqualToIgnoringCase(INVOICE_FILE_PATH + "t 1234.pdf");
     }
 
+    @Test
+    void getAllInvoicesTests() {
+
+    }
+
+    @Test
+    void deleteInvoicesTests() {
+
+    }
+
+    @Test
+    void editInvoiceTests() {
+
+    }
+
 }
