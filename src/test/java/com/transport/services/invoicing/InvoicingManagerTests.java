@@ -7,13 +7,14 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class InvoicingManagerTests {
     private final CompanyInfo companyInfoTest1 = new CompanyInfo("test", "test", "test", "TE", 95212);
@@ -61,17 +62,33 @@ public class InvoicingManagerTests {
 
     @Test
     void getAllInvoicesTests() {
+        when(irMock.findAll()).thenReturn(new ArrayList<>());
+        assertThat(im.getAllInvoices()).isEqualTo(new ArrayList<>());
 
+        when(irMock.findAll()).thenReturn(Arrays.asList(testInv1, testInv1));
+        assertThat(im.getAllInvoices().size()).isEqualTo(2);
     }
 
     @Test
     void deleteInvoicesTests() {
-
+        im.deleteInvoices(new ArrayList<>());
+        assertThatThrownBy(() -> im.deleteInvoices(Arrays.asList(1L, 2L)))
+                .isInstanceOf(NoSuchElementException.class)
+                .hasMessage("Unable to find Invoice with 1 id");
+        doNothing().when(irMock).delete(any());
+        when(irMock.findById(1L)).thenReturn(Optional.of(testInv1));
+        when(irMock.findById(2L)).thenReturn(Optional.of(testInv1));
+        im.deleteInvoices(Arrays.asList(1L, 2L));
     }
 
     @Test
     void editInvoiceTests() {
+        assertThatThrownBy(() -> im.editInvoice(testInvDto))
+                .isInstanceOf(NoSuchElementException.class)
+                .hasMessage("Unable to find Invoice with 0 id");
 
+        when(irMock.findById(testInvDto.getId())).thenReturn(Optional.of(testInv1));
+        assertThat(im.editInvoice(testInvDto)).isEqualToIgnoringCase(INVOICE_FILE_PATH + "t 1234.pdf");
     }
 
 }

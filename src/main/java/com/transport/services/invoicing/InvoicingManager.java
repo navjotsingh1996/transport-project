@@ -102,12 +102,20 @@ public class InvoicingManager implements InvoiceService {
 
     @Override
     public void deleteInvoices(List<Long> ids) {
-        ir.findAllById(ids).forEach(ir::delete);
+        ids.forEach(id -> ir.delete(ir.findById(id).orElseThrow(() ->
+                new NoSuchElementException("Unable to find Invoice with " + id + " id"))));
     }
 
     @Override
     public String editInvoice(InvoiceDto invoice) {
-        ir.save(toEntity(invoice));
+        Invoice inv = ir.findById(invoice.getId()).orElseThrow(() ->
+                new NoSuchElementException("Unable to find Invoice with " + invoice.getId() + " id"));
+        inv.setBalances(invoice.getBalances());
+        inv.setStops(invoice.getStops());
+        inv.setBillTo(invoice.getBillTo());
+        inv.setDate(Instant.now().toEpochMilli());
+        inv.setLoadNumber(invoice.getLoadNumber());
+        ir.save(inv);
         return createInvoicePdf(invoice);
     }
 
