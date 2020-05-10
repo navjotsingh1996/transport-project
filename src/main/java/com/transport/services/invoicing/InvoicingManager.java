@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -33,12 +31,39 @@ public class InvoicingManager implements InvoiceService {
     private final InvoicingRepository ir;
 
     /**
+     * Convert from entity to dto
+     *
+     * @param entity to be converted
+     * @return a dto from the entity
+     */
+    private static InvoiceDto toDto(Invoice entity) {
+        return new InvoiceDto(entity.getId(), entity.getLoadNumber(), entity.getDate(), entity.getBillTo(),
+                entity.getStops(), entity.getBalances());
+    }
+
+    /**
+     * Creates the file name of the pdf using the company name and load number
+     *
+     * @param info       company info
+     * @param loadNumber loadnumber of invoice
+     * @return name of pdf
+     */
+    private static String getFileName(CompanyInfo info, String loadNumber) {
+        List<String> companyName = Arrays.asList(info.getName().split(" "));
+        StringBuilder filename = new StringBuilder(10);
+        for (String f : companyName) {
+            filename.append(f.charAt(0));
+        }
+        return INVOICE_PDS_PATH + filename + ' ' + loadNumber + ".pdf";
+    }
+
+    /**
      * Convert from a dto to entity
      *
      * @param dto to be converted
      * @return an entity from the dto
      */
-    private Invoice toEntity(InvoiceDto dto) {
+    Invoice toEntity(InvoiceDto dto) {
         long date = Instant.now().toEpochMilli();
         if (dto.getDate() != 0) {
             date = dto.getDate();
@@ -54,17 +79,6 @@ public class InvoicingManager implements InvoiceService {
             return inv;
         }
         return new Invoice(dto.getLoadNumber(), date, dto.getBillTo(), dto.getStops(), dto.getBalances());
-    }
-
-    /**
-     * Convert from entity to dto
-     *
-     * @param entity to be converted
-     * @return a dto from the entity
-     */
-    private static InvoiceDto toDto(Invoice entity) {
-        return new InvoiceDto(entity.getId(), entity.getLoadNumber(), entity.getDate(), entity.getBillTo(),
-                entity.getStops(), entity.getBalances());
     }
 
     @Override
@@ -97,17 +111,9 @@ public class InvoicingManager implements InvoiceService {
         return createInvoicePdf(invoice);
     }
 
-    private String getFileName(CompanyInfo info, String loadNumber) {
-        List<String> companyName = Arrays.asList(info.getName().split(" "));
-        StringBuilder filename = new StringBuilder(10);
-        for (String f : companyName) {
-            filename.append(f.charAt(0));
-        }
-        return INVOICE_PDS_PATH + filename + ' ' + loadNumber + ".pdf";
-    }
-
     /**
      * Creates Invoice from InvoiceDto data
+     *
      * @param invoice to be created
      * @return a file containing the newly created invoice
      */
