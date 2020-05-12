@@ -4,10 +4,7 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.transport.services.invoicing.models.CompanyInfo;
-import com.transport.services.invoicing.models.Invoice;
-import com.transport.services.invoicing.models.InvoiceDto;
-import com.transport.services.invoicing.models.InvoicingRepository;
+import com.transport.services.invoicing.models.*;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,6 +80,7 @@ public class InvoicingManager implements InvoiceService {
 
     @Override
     public String createInvoice(InvoiceDto invoice) {
+        validateStops(invoice.getStops());
         toEntity(invoice);
         ir.save(toEntity(invoice));
         return createInvoicePdf(invoice);
@@ -108,6 +106,7 @@ public class InvoicingManager implements InvoiceService {
 
     @Override
     public String editInvoice(InvoiceDto invoice) {
+        validateStops(invoice.getStops());
         Invoice inv = ir.findById(invoice.getId()).orElseThrow(() ->
                 new NoSuchElementException("Unable to find Invoice with " + invoice.getId() + " id"));
         inv.setBalances(invoice.getBalances());
@@ -117,6 +116,29 @@ public class InvoicingManager implements InvoiceService {
         inv.setLoadNumber(invoice.getLoadNumber());
         ir.save(inv);
         return createInvoicePdf(invoice);
+    }
+
+    private void validateStops(List<Stop> stops) {
+        int pickups = 0;
+        int deliveries = 0;
+        if (stops.isEmpty()) {
+            throw new IllegalStateException("Cannot have 0 stops");
+        }
+        if (stops.size() == 1) {
+            throw new IllegalStateException("Must have at least 2 stops");
+        }
+        for (int i = 0; i < stops.size(); i++) {
+            if (stops.get(i).getType() == Stop.StopType.PICKUP) {
+                pickups++;
+            } else if (stops.get(i).getType() == Stop.StopType.DELIVERY) {
+                deliveries++;
+            } else {
+                throw new IllegalStateException("Stop type unknown: " + stops.get(i));
+            }
+        }
+        if (pickups == 0 || deliveries == 0) {
+            throw new IllegalStateException("Must have at least one stop and one delivery");
+        }
     }
 
     /**

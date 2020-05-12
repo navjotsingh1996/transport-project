@@ -27,6 +27,7 @@ public class ConverterListStop implements AttributeConverter<List<Stop>, String>
                         java.nio.charset.StandardCharsets.UTF_8.toString()));
             } catch (Exception e) {
                 log.error("Unable to stringify stop to DB", e);
+                throw new IllegalStateException("Unable to write stop data");
             }
         });
         return String.join(",", stopJsonString);
@@ -50,7 +51,7 @@ public class ConverterListStop implements AttributeConverter<List<Stop>, String>
                 realData.add(realStop);
             } catch (Exception e) {
                 log.error("Unable to unstringify stop from DB", e);
-
+                throw new IllegalStateException("Unable to read stop data");
             }
         });
         return realData;
