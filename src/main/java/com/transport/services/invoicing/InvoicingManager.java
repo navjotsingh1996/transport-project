@@ -118,6 +118,10 @@ public class InvoicingManager implements InvoiceService {
         return createInvoicePdf(invoice);
     }
 
+    /**
+     * Validates teh stops, making sure there aer a valid number of them
+     * @param stops array of stops
+     */
     private void validateStops(List<Stop> stops) {
         int pickups = 0;
         int deliveries = 0;
