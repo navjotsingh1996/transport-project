@@ -122,7 +122,7 @@ public class InvoicingManager implements InvoiceService {
      * Validates teh stops, making sure there aer a valid number of them
      * @param stops array of stops
      */
-    private void validateStops(List<Stop> stops) {
+    private static void validateStops(List<Stop> stops) {
         int pickups = 0;
         int deliveries = 0;
         if (stops.isEmpty()) {
@@ -161,6 +161,7 @@ public class InvoicingManager implements InvoiceService {
             document.add(new Paragraph("Invoice # " + Long.toString(invoice.getId())));
             document.close();
             writer.close();
+            // TODO: Need to throw internal server error
         } catch (DocumentException e) {
             log.error("Something is wrong with the document", e);
         } catch (FileNotFoundException e) {
