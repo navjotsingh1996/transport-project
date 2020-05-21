@@ -64,6 +64,27 @@ class InvoicingManagerTests {
     }
 
     @Test
+    void invalidStopsTests() {
+        InvoiceDto invoiceNoStops = new InvoiceDto(testInvDto.getId(), testInvDto.getLoadNumber(), testInvDto.getDate(),
+                testInvDto.getBillTo(), new ArrayList<>(), testInvDto.getBalances());
+        Stop pickupStop = new Stop(Instant.now().toEpochMilli(), "pickup", "test", "TE", "Test", 12345, Stop.StopType.PICKUP);
+        Stop deliveryStop = new Stop(Instant.now().toEpochMilli(), "delivery", "test", "TE", "Test", 12345, Stop.StopType.DELIVERY);
+        InvoiceDto invoiceSameStops = new InvoiceDto(testInvDto.getId(), testInvDto.getLoadNumber(), testInvDto.getDate(),
+                testInvDto.getBillTo(), Arrays.asList(pickupStop, pickupStop), testInvDto.getBalances());
+        InvoiceDto invoiceOneStop = new InvoiceDto(testInvDto.getId(), testInvDto.getLoadNumber(), testInvDto.getDate(),
+                testInvDto.getBillTo(), Arrays.asList(deliveryStop), testInvDto.getBalances());
+        assertThatThrownBy(() -> im.createInvoice(invoiceNoStops))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Must have at least two stops");
+        assertThatThrownBy(() -> im.createInvoice(invoiceSameStops))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Must have at least one stop and one delivery");
+        assertThatThrownBy(() -> im.createInvoice(invoiceSameStops))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Must have at least one stop and one delivery");
+    }
+
+    @Test
     void getAllInvoicesTests() {
         when(irMock.findAll()).thenReturn(new ArrayList<>());
         assertThat(im.getAllInvoices()).isEqualTo(new ArrayList<>());

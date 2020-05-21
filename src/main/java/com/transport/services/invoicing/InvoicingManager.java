@@ -126,7 +126,7 @@ public class InvoicingManager implements InvoiceService {
         int pickups = 0;
         int deliveries = 0;
         if (stops.isEmpty()) {
-            throw new IllegalStateException("Cannot have 0 stops");
+            throw new IllegalStateException("Must have at least two stops");
         }
         if (stops.size() == 1) {
             throw new IllegalStateException("Must have at least 2 stops");

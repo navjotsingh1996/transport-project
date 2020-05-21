@@ -43,7 +43,6 @@ public class Invoice {
     public Invoice(String loadNumber, long date, CompanyInfo billTo, List<Stop> stops, TotalInvoiceBalance balances) {
         this.date = date;
         this.loadNumber = loadNumber;
-        this.date = date;
         this.billTo = billTo;
         this.stops = stops;
         this.balances = balances;

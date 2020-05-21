@@ -26,6 +26,6 @@ public class TotalInvoiceBalance {
     private double other;
 
     public double getTotalBalance() {
-        return rateAmount + detention + layover + advance + extraStop + other + lumper;
+        return Math.round((rateAmount + detention + layover + advance + extraStop + other + lumper) * 100.0) / 100.0;
     }
 }
