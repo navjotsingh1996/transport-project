@@ -1,11 +1,18 @@
 package com.transport.commons;
 
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.transport.services.invoicing.models.Stop;
 
 import java.util.List;
 
 public class DocumentCreationHelper {
+    private static final String COMPANY_NAME = "MOONLIGHT TRANS INC.";
+
+    private static Chunk createBoldUnderlineChunk(String text) {
+        return new Chunk(text,  new Font(Font.FontFamily.TIMES_ROMAN, 15, Font.BOLD|Font.UNDERLINE));
+    }
 
     /**
      * This function will return the title of the invoice. Which would include
@@ -13,7 +20,9 @@ public class DocumentCreationHelper {
      * @return Paragraph of the title
      */
     public static Paragraph title() {
-        return new Paragraph("");
+        Paragraph titleParagraph = new Paragraph();
+        titleParagraph.add(createBoldUnderlineChunk(COMPANY_NAME));
+        return titleParagraph;
     }
 
     /**

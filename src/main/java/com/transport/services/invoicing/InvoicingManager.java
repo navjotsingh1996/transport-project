@@ -4,6 +4,7 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.transport.commons.DocumentCreationHelper;
 import com.transport.services.invoicing.models.*;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -64,16 +65,6 @@ public class InvoicingManager implements InvoiceService {
         long date = Instant.now().toEpochMilli();
         if (dto.getDate() != 0) {
             date = dto.getDate();
-        }
-        if (dto.getId() != 0) {
-            Invoice inv = ir.findById(dto.getId()).orElseThrow(() ->
-                    new NoSuchElementException("Unable to find Invoice with " + dto.getId() + " id"));
-            inv.setLoadNumber(dto.getLoadNumber());
-            inv.setDate(date);
-            inv.setBillTo(dto.getBillTo());
-            inv.setStops(dto.getStops());
-            inv.setBalances(dto.getBalances());
-            return inv;
         }
         return new Invoice(dto.getLoadNumber(), date, dto.getBillTo(), dto.getStops(), dto.getBalances());
     }
@@ -158,7 +149,7 @@ public class InvoicingManager implements InvoiceService {
         try {
             PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
             document.open();
-            document.add(new Paragraph("Invoice # " + Long.toString(invoice.getId())));
+            document.add(DocumentCreationHelper.title());
             document.close();
             writer.close();
             // TODO: Need to throw internal server error
