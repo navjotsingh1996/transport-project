@@ -1,9 +1,13 @@
 package com.transport.services.invoicing;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.border.Border;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.UnitValue;
 import com.transport.commons.DocumentCreationHelper;
 import com.transport.services.invoicing.models.*;
 import lombok.NonNull;
@@ -11,8 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +59,34 @@ public class InvoicingManager implements InvoiceService {
     }
 
     /**
+     * Validates teh stops, making sure there aer a valid number of them
+     *
+     * @param stops array of stops
+     */
+    private static void validateStops(List<Stop> stops) {
+        int pickups = 0;
+        int deliveries = 0;
+        if (stops.isEmpty()) {
+            throw new IllegalStateException("Must have at least two stops");
+        }
+        if (stops.size() == 1) {
+            throw new IllegalStateException("Must have at least 2 stops");
+        }
+        for (int i = 0; i < stops.size(); i++) {
+            if (stops.get(i).getType() == Stop.StopType.PICKUP) {
+                pickups++;
+            } else if (stops.get(i).getType() == Stop.StopType.DELIVERY) {
+                deliveries++;
+            } else {
+                throw new IllegalStateException("Stop type unknown: " + stops.get(i));
+            }
+        }
+        if (pickups == 0 || deliveries == 0) {
+            throw new IllegalStateException("Must have at least one stop and one delivery");
+        }
+    }
+
+    /**
      * Convert from a dto to entity
      *
      * @param dto to be converted
@@ -74,7 +105,13 @@ public class InvoicingManager implements InvoiceService {
         validateStops(invoice.getStops());
         toEntity(invoice);
         ir.save(toEntity(invoice));
-        return createInvoicePdf(invoice);
+        try {
+            return createInvoicePdf(invoice);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            // TODO: THROW 500
+            return "";
+        }
     }
 
     @Override
@@ -106,33 +143,12 @@ public class InvoicingManager implements InvoiceService {
         inv.setDate(Instant.now().toEpochMilli());
         inv.setLoadNumber(invoice.getLoadNumber());
         ir.save(inv);
-        return createInvoicePdf(invoice);
-    }
-
-    /**
-     * Validates teh stops, making sure there aer a valid number of them
-     * @param stops array of stops
-     */
-    private static void validateStops(List<Stop> stops) {
-        int pickups = 0;
-        int deliveries = 0;
-        if (stops.isEmpty()) {
-            throw new IllegalStateException("Must have at least two stops");
-        }
-        if (stops.size() == 1) {
-            throw new IllegalStateException("Must have at least 2 stops");
-        }
-        for (int i = 0; i < stops.size(); i++) {
-            if (stops.get(i).getType() == Stop.StopType.PICKUP) {
-                pickups++;
-            } else if (stops.get(i).getType() == Stop.StopType.DELIVERY) {
-                deliveries++;
-            } else {
-                throw new IllegalStateException("Stop type unknown: " + stops.get(i));
-            }
-        }
-        if (pickups == 0 || deliveries == 0) {
-            throw new IllegalStateException("Must have at least one stop and one delivery");
+        try {
+            return createInvoicePdf(invoice);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            // TODO: THROW 500
+            return "";
         }
     }
 
@@ -142,22 +158,21 @@ public class InvoicingManager implements InvoiceService {
      * @param invoice to be created
      * @return a file containing the newly created invoice
      */
-    private String createInvoicePdf(InvoiceDto invoice) {
+    private String createInvoicePdf(InvoiceDto invoice) throws IOException {
 
-        Document document = new Document();
         String fileName = getFileName(invoice.getBillTo(), invoice.getLoadNumber());
-        try {
-            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
-            document.open();
-            document.add(DocumentCreationHelper.title());
-            document.close();
-            writer.close();
-            // TODO: Need to throw internal server error
-        } catch (DocumentException e) {
-            log.error("Something is wrong with the document", e);
-        } catch (FileNotFoundException e) {
-            log.error("Unable to find file", e);
-        }
+        PdfDocument pdfDoc = new PdfDocument(new PdfWriter(fileName));
+        Document document = new Document(pdfDoc);
+        document.add(DocumentCreationHelper.title());
+        float[] columnWidth = {10, 10};
+        Table table = new Table(UnitValue.createPercentArray(columnWidth)).useAllAvailableWidth();
+        table.addCell(new Cell().add(new Paragraph("WHACK")));
+        table.addCell(new Cell().add(new Paragraph("WHACK")));
+        table.addCell(new Cell().add(new Paragraph("WHACK")));
+        table.addCell(new Cell().add(new Paragraph("WHACK")));
+        table.setBorder(Border.NO_BORDER);
+        document.add(table);
+        document.close();
         return fileName;
     }
 }
