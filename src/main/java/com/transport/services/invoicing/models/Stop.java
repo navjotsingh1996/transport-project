@@ -21,6 +21,10 @@ public class Stop {
     @NonNull
     private StopType type;
 
+    public String getCityStateZip() {
+        return city + ", " + state + ' ' + zip;
+    }
+
     public enum StopType {
         PICKUP,
         DELIVERY

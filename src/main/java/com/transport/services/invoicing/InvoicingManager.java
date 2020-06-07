@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -159,19 +160,25 @@ public class InvoicingManager implements InvoiceService {
      * @return a file containing the newly created invoice
      */
     private String createInvoicePdf(InvoiceDto invoice) throws IOException {
-
+        ArrayList<Stop> pickup = new ArrayList<>();
+        ArrayList<Stop> delivery = new ArrayList<>();
         String fileName = getFileName(invoice.getBillTo(), invoice.getLoadNumber());
         PdfDocument pdfDoc = new PdfDocument(new PdfWriter(fileName));
         Document document = new Document(pdfDoc);
         document.add(DocumentCreationHelper.title());
-        float[] columnWidth = {10, 10};
-        Table table = new Table(UnitValue.createPercentArray(columnWidth)).useAllAvailableWidth();
-        table.addCell(new Cell().add(new Paragraph("WHACK")));
-        table.addCell(new Cell().add(new Paragraph("WHACK")));
-        table.addCell(new Cell().add(new Paragraph("WHACK")));
-        table.addCell(new Cell().add(new Paragraph("WHACK")));
-        table.setBorder(Border.NO_BORDER);
-        document.add(table);
+
+        invoice.getStops().forEach(stop -> {
+            if (stop.getType() == Stop.StopType.PICKUP) {
+                pickup.add(stop);
+            } else {
+                delivery.add(stop);
+            }
+        });
+
+        Table pickupTable = DocumentCreationHelper.createBorderlessTable(pickup, Stop.StopType.PICKUP);
+        Table deliveryTable = DocumentCreationHelper.createBorderlessTable(delivery, Stop.StopType.DELIVERY);
+        document.add(pickupTable);
+        document.add(deliveryTable);
         document.close();
         return fileName;
     }
