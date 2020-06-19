@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -52,12 +53,15 @@ public class InvoicingController {
      * @return the new pdf
      */
     @PostMapping("/invoice")
-    public ResponseEntity<InputStreamResource> createInvoice(@RequestBody InvoiceDto invoice) {
+    public ResponseEntity createInvoice(@RequestBody InvoiceDto invoice) {
         try {
             return downloadPdf( new File(im.createInvoice(invoice)));
+        } catch (IllegalStateException e) {
+            log.error("Failed to create invoice", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             log.error("Unable to download pdf", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unable to download invoice");
         }
     }
 
@@ -104,14 +108,17 @@ public class InvoicingController {
      * @return the new pdf
      */
     @PutMapping("/invoice")
-    public ResponseEntity<InputStreamResource> editInvoices(@RequestBody InvoiceDto invoice){
+    public ResponseEntity editInvoices(@RequestBody InvoiceDto invoice) {
         try {
-            return downloadPdf( new File(im.editInvoice(invoice)));
+            return downloadPdf(new File(im.editInvoice(invoice)));
         } catch (NoSuchElementException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            log.error("Failed to create invoice", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             log.error("Unable to download pdf", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unable to download invoice");
         }
     }
 }

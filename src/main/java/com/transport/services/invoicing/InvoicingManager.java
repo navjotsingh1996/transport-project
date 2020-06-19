@@ -102,17 +102,12 @@ public class InvoicingManager implements InvoiceService {
     }
 
     @Override
-    public String createInvoice(InvoiceDto invoice) {
+    public String createInvoice(InvoiceDto invoice) throws IOException {
         validateStops(invoice.getStops());
         toEntity(invoice);
         ir.save(toEntity(invoice));
-        try {
-            return createInvoicePdf(invoice);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            // TODO: THROW 500
-            return "";
-        }
+        return createInvoicePdf(invoice);
+
     }
 
     @Override
@@ -134,7 +129,7 @@ public class InvoicingManager implements InvoiceService {
     }
 
     @Override
-    public String editInvoice(InvoiceDto invoice) {
+    public String editInvoice(InvoiceDto invoice)  throws IOException {
         validateStops(invoice.getStops());
         Invoice inv = ir.findById(invoice.getId()).orElseThrow(() ->
                 new NoSuchElementException("Unable to find Invoice with " + invoice.getId() + " id"));
@@ -144,13 +139,7 @@ public class InvoicingManager implements InvoiceService {
         inv.setDate(Instant.now().toEpochMilli());
         inv.setLoadNumber(invoice.getLoadNumber());
         ir.save(inv);
-        try {
-            return createInvoicePdf(invoice);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            // TODO: THROW 500
-            return "";
-        }
+        return createInvoicePdf(invoice);
     }
 
     /**
