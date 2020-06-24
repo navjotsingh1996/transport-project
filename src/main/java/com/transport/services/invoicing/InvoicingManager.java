@@ -51,6 +51,9 @@ public class InvoicingManager implements InvoiceService {
      * @return name of pdf
      */
     private static String getFileName(CompanyInfo info, String loadNumber) {
+        if (info.getName().isEmpty()) {
+            throw new IllegalArgumentException("Bill to must have a company name");
+        }
         List<String> companyName = Arrays.asList(info.getName().split(" "));
         StringBuilder filename = new StringBuilder(10);
         for (String f : companyName) {
@@ -129,7 +132,7 @@ public class InvoicingManager implements InvoiceService {
     }
 
     @Override
-    public String editInvoice(InvoiceDto invoice)  throws IOException {
+    public String editInvoice(InvoiceDto invoice) throws IOException {
         validateStops(invoice.getStops());
         Invoice inv = ir.findById(invoice.getId()).orElseThrow(() ->
                 new NoSuchElementException("Unable to find Invoice with " + invoice.getId() + " id"));

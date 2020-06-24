@@ -56,6 +56,8 @@ public class InvoicingController {
     public ResponseEntity createInvoice(@RequestBody InvoiceDto invoice) {
         try {
             return downloadPdf( new File(im.createInvoice(invoice)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (IllegalStateException e) {
             log.error("Failed to create invoice", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -111,7 +113,7 @@ public class InvoicingController {
     public ResponseEntity editInvoices(@RequestBody InvoiceDto invoice) {
         try {
             return downloadPdf(new File(im.editInvoice(invoice)));
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException | IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (IllegalStateException e) {
             log.error("Failed to create invoice", e);
