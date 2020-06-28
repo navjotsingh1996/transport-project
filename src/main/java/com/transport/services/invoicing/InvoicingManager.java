@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -173,5 +170,24 @@ public class InvoicingManager implements InvoiceService {
         document.add(deliveryTable);
         document.close();
         return fileName;
+    }
+
+    public List<CompanyInfo> searchBillTo(String name, String address) {
+        return ir.findAllByCompanyInfoNameOrAddress(name, address);
+    }
+
+    // TODO: Inefficient, need to do a query through sql to search for this or switch to Elastic search
+    public List<Stop> searchStops(String name, String address) {
+        List<Invoice> allInvoices = ir.findAll();
+        List<Stop> stops = new ArrayList<>();
+        allInvoices.forEach((invoice) -> {
+            invoice.getStops().forEach((stop) -> {
+                if (stop.getName().toLowerCase(Locale.ENGLISH).contains(name) ||
+                        stop.getStreetAddress().toLowerCase(Locale.ENGLISH).contains(address)) {
+                    stops.add(stop);
+                }
+            });
+        });
+        return stops;
     }
 }

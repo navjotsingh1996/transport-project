@@ -1,7 +1,9 @@
 package com.transport.controllers;
 
 import com.transport.services.invoicing.InvoicingManager;
+import com.transport.services.invoicing.models.CompanyInfo;
 import com.transport.services.invoicing.models.InvoiceDto;
+import com.transport.services.invoicing.models.Stop;
 import javassist.tools.web.BadHttpRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
@@ -122,5 +125,17 @@ public class InvoicingController {
             log.error("Unable to download pdf", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unable to download invoice");
         }
+    }
+
+    @GetMapping("/invoices/search/billto")
+    public List<CompanyInfo> searchCompanyInfo(@RequestParam("name") String name,
+                                               @RequestParam("address") String address) {
+        return im.searchBillTo(name.toLowerCase(Locale.ENGLISH), address.toLowerCase(Locale.ENGLISH));
+    }
+
+    @GetMapping("/invoices/search/stops")
+    public List<Stop> searchStops(@RequestParam("name") String name,
+                                  @RequestParam("address") String address) {
+        return im.searchStops(name.toLowerCase(Locale.ENGLISH), address.toLowerCase(Locale.ENGLISH));
     }
 }
