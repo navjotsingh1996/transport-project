@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @Slf4j
@@ -172,22 +174,37 @@ public class InvoicingManager implements InvoiceService {
         return fileName;
     }
 
+    @Override
     public List<CompanyInfo> searchBillTo(String name, String address) {
-        return ir.findAllByCompanyInfoNameOrAddress(name, address);
+        Map<String, CompanyInfo> addresses =  new HashMap<>();
+
+        ir.findAllByCompanyInfoNameOrAddress(name, address).forEach(billTo -> {
+            String add = billTo.getName() + billTo.getStreetAddress() + billTo.getCity() + billTo.getState() + billTo.getZip();
+            addresses.put(add.replaceAll("\\s+",""), billTo);
+        });
+        return new ArrayList<>(addresses.values());
     }
 
     // TODO: Inefficient, need to do a query through sql to search for this or switch to Elastic search
+    @Override
     public List<Stop> searchStops(String name, String address) {
         List<Invoice> allInvoices = ir.findAll();
         List<Stop> stops = new ArrayList<>();
-        allInvoices.forEach((invoice) -> {
-            invoice.getStops().forEach((stop) -> {
+        Integer a = 0;
+        allInvoices.forEach(invoice -> {
+            invoice.getStops().forEach(stop -> {
                 if (stop.getName().toLowerCase(Locale.ENGLISH).contains(name) ||
                         stop.getStreetAddress().toLowerCase(Locale.ENGLISH).contains(address)) {
                     stops.add(stop);
                 }
             });
         });
-        return stops;
+        Map<String, Stop> addresses =  new HashMap<>();
+
+        stops.forEach(stop -> {
+            String add = stop.getName() + stop.getStreetAddress() + stop.getCityStateZip();
+            addresses.put(add.replaceAll("\\s+",""), stop);
+        });
+        return new ArrayList<>(addresses.values());
     }
 }

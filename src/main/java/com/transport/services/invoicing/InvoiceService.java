@@ -1,6 +1,8 @@
 package com.transport.services.invoicing;
 
+import com.transport.services.invoicing.models.CompanyInfo;
 import com.transport.services.invoicing.models.InvoiceDto;
+import com.transport.services.invoicing.models.Stop;
 
 import java.io.IOException;
 import java.util.List;
@@ -43,4 +45,20 @@ public interface InvoiceService {
      * @return path to pdf
      */
     String editInvoice(InvoiceDto invoice) throws IOException;
+
+    /**
+     * Searches Bill To field for all Invoices to find a match
+     * @param name query for the name
+     * @param address query for the address
+     * @return list of BillTo (CompanyInfo fields) that match the query
+     */
+    List<CompanyInfo> searchBillTo(String name, String address);
+
+    /**
+     * Searches Stops field for all Invoices to find a match
+     * @param name query for the name
+     * @param address query for the address
+     * @return list of Stops that match the query
+     */
+    List<Stop> searchStops(String name, String address);
 }

@@ -127,12 +127,24 @@ public class InvoicingController {
         }
     }
 
+    /**
+     * Search the invoices for a bill to that matches the query params
+     * @param name query param for name
+     * @param address query param for address
+     * @return List of bill to's that match the query params
+     */
     @GetMapping("/invoices/search/billto")
     public List<CompanyInfo> searchCompanyInfo(@RequestParam("name") String name,
                                                @RequestParam("address") String address) {
         return im.searchBillTo(name.toLowerCase(Locale.ENGLISH), address.toLowerCase(Locale.ENGLISH));
     }
 
+    /**
+     * Search the invoices for a stop that matches the query params
+     * @param name query param for name
+     * @param address query param for address
+     * @return List of stops that match the query params
+     */
     @GetMapping("/invoices/search/stops")
     public List<Stop> searchStops(@RequestParam("name") String name,
                                   @RequestParam("address") String address) {
