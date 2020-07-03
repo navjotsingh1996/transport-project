@@ -1,10 +1,11 @@
 package com.transport.controllers;
 
 import com.transport.services.invoicing.InvoicingManager;
+import com.transport.services.invoicing.models.Address;
 import com.transport.services.invoicing.models.CompanyInfo;
 import com.transport.services.invoicing.models.InvoiceDto;
+import com.transport.services.invoicing.models.InvoiceDto.invoiceSearchTypes;
 import com.transport.services.invoicing.models.Stop;
-import javassist.tools.web.BadHttpRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +20,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @CrossOrigin
@@ -35,6 +36,7 @@ public class InvoicingController {
 
     /**
      * Takes in a File and returns a pdf responseEntity
+     *
      * @param file to be sent by the controller
      * @return ResponseEntity (pdf file)
      * @throws FileNotFoundException if the file is not found
@@ -58,7 +60,7 @@ public class InvoicingController {
     @PostMapping("/invoice")
     public ResponseEntity createInvoice(@RequestBody InvoiceDto invoice) {
         try {
-            return downloadPdf( new File(im.createInvoice(invoice)));
+            return downloadPdf(new File(im.createInvoice(invoice)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (IllegalStateException e) {
@@ -80,13 +82,14 @@ public class InvoicingController {
     public InvoiceDto getInvoice(@PathVariable long id) {
         try {
             return im.getInvoice(id);
-        } catch(NoSuchElementException e) {
+        } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
     /**
      * Gets all of the invoices
+     *
      * @return a list of invoices
      */
     @GetMapping("/invoice")
@@ -96,6 +99,7 @@ public class InvoicingController {
 
     /**
      * Delete all invoices with the given ids
+     *
      * @param ids ids to be deleted
      */
     @PutMapping("/invoice/delete")
@@ -103,12 +107,13 @@ public class InvoicingController {
         try {
             im.deleteInvoices(ids);
         } catch (NoSuchElementException e) {
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
     /**
      * Edit and update an invoice in the database
+     *
      * @param invoice that needs to be updated
      * @return the new pdf
      */
@@ -129,25 +134,21 @@ public class InvoicingController {
 
     /**
      * Search the invoices for a bill to that matches the query params
-     * @param name query param for name
+     *
+     * @param name    query param for name
      * @param address query param for address
      * @return List of bill to's that match the query params
      */
-    @GetMapping("/invoices/search/billto")
-    public List<CompanyInfo> searchCompanyInfo(@RequestParam("name") String name,
-                                               @RequestParam("address") String address) {
-        return im.searchBillTo(name.toLowerCase(Locale.ENGLISH), address.toLowerCase(Locale.ENGLISH));
-    }
-
-    /**
-     * Search the invoices for a stop that matches the query params
-     * @param name query param for name
-     * @param address query param for address
-     * @return List of stops that match the query params
-     */
-    @GetMapping("/invoices/search/stops")
-    public List<Stop> searchStops(@RequestParam("name") String name,
-                                  @RequestParam("address") String address) {
-        return im.searchStops(name.toLowerCase(Locale.ENGLISH), address.toLowerCase(Locale.ENGLISH));
+    @GetMapping("/invoice/search")
+    public List<Address> searchInvoice(@RequestParam("name") String name,
+                                       @RequestParam("address") String address,
+                                       @RequestParam("field") invoiceSearchTypes field) {
+        return field == invoiceSearchTypes.BILLTO ?
+                im.searchBillTo(name.toLowerCase(Locale.ENGLISH), address.toLowerCase(Locale.ENGLISH)).stream()
+                        .map(billTo -> new Address(billTo.getName(), billTo.getStreetAddress(), billTo.getCity(),
+                                billTo.getState(), billTo.getZip())).collect(Collectors.toList()) :
+                im.searchStops(name.toLowerCase(Locale.ENGLISH), address.toLowerCase(Locale.ENGLISH))
+                        .stream().map(stop -> new Address(stop.getName(), stop.getStreetAddress(), stop.getCity(),
+                        stop.getState(), stop.getZip())).collect(Collectors.toList());
     }
 }

@@ -24,4 +24,9 @@ public class InvoiceDto {
 
     @NonNull
     private final TotalInvoiceBalance balances;
+
+    public enum invoiceSearchTypes {
+        BILLTO,
+        STOPS
+    }
 }
