@@ -165,7 +165,10 @@ public class InvoicingManager implements InvoiceService {
         String fileName = getFileName(invoice.getBillTo(), invoice.getLoadNumber());
         PdfDocument pdfDoc = new PdfDocument(new PdfWriter(fileName));
         Document document = new Document(pdfDoc);
-        document.add(DocumentCreationHelper.title());
+        document.add(DocumentCreationHelper.title(invoice.getId()));
+        document.add(DocumentCreationHelper.createLine());
+        document.add(DocumentCreationHelper.billTo(invoice.getLoadNumber(), invoice.getBillTo()));
+        document.add(DocumentCreationHelper.createLine());
 
         invoice.getStops().forEach(stop -> {
             if (stop.getType() == Stop.StopType.PICKUP) {
@@ -178,7 +181,13 @@ public class InvoicingManager implements InvoiceService {
         Table pickupTable = DocumentCreationHelper.createBorderlessTable(pickup, Stop.StopType.PICKUP);
         Table deliveryTable = DocumentCreationHelper.createBorderlessTable(delivery, Stop.StopType.DELIVERY);
         document.add(pickupTable);
+        document.add(DocumentCreationHelper.createLine());
         document.add(deliveryTable);
+        document.add(DocumentCreationHelper.createLine());
+        document.add(DocumentCreationHelper.spacing());
+        document.add(DocumentCreationHelper.truckOrderNotUsedCase(invoice.getBalances()));
+        document.add(DocumentCreationHelper.totalCosts(invoice.getBalances()));
+        document.add(DocumentCreationHelper.checksPayable());
         document.close();
         return fileName;
     }
