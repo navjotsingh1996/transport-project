@@ -30,9 +30,6 @@ import java.util.ArrayList;
 import static com.itextpdf.io.font.FontConstants.TIMES_ROMAN;
 
 public class DocumentCreationHelper {
-    /**
-     *
-     */
     private static final String COMPANY_NAME = "MOONLIGHT TRANS, INC.";
     private static final String STREET_ADDRESS = "6507 PACIFIC AVE. #228";
     private static final String INVOICE_TITLE = "INVOICE";
@@ -41,7 +38,7 @@ public class DocumentCreationHelper {
     private static final String EMAIL = "MOONLIGHTTRANSINC@GMAIL.COM";
     private static final String DATE_TITLE = "DATE: ";
     private static final String BILL_TO_TITLE = "BILL TO: ";
-    private static final String LOAD_NUM = "LOAD # ";
+    private static final String LOAD_NUM = "LOAD ";
     private static final String RATE_AMOUNT = "RATE AMOUNT";
     private static final String DETENTION = "DETENTION";
     private static final String LAYOVER = "LAYOVER";
@@ -53,14 +50,47 @@ public class DocumentCreationHelper {
     private static final String DOLLAR_SIGN = "$";
     private static final String TRUCK_ORDER_NOT_USED = "TRUCK ORDER NOT USED\n";
     private static final String CHECKS_PAYABLE_TITLE = "\nPLEASE MAKE ALL CHECKS PAYABLE TO:\n";
+    
+    
+    /*
+     * This function will return a cell that is times new roman font, borderless, and font size 12.
+     *
+     * @return a formatted cell
+     */
+    public static Cell createCellWithFormat(String text) throws IOException {
+        return new Cell().add(text.toUpperCase()).setBorder(Border.NO_BORDER).setFont(PdfFontFactory.createFont(TIMES_ROMAN)).setFontSize(12);    
+    }
+    
+    /*
+     * This function will return a cell that is times new roman font, has a bottom border only, and font size 12.
+     *
+     * @return a formatted cell that has a bottom border only
+     */
+    public static Cell createCellUnderlined(String text) throws IOException {
+        Cell cell = new Cell().add(text).setVerticalAlignment(VerticalAlignment.BOTTOM).setFont(PdfFontFactory.createFont(TIMES_ROMAN)).setFontSize(12);
+                    cell.setBorderTop(Border.NO_BORDER);
+                    cell.setBorderRight(Border.NO_BORDER);
+                    cell.setBorderLeft(Border.NO_BORDER);
+        return cell;
+    }
 
-
-    public static LineSeparator  createLine(){
+    /*
+     * This function will return a solid line to add under sections of the invoice
+     *
+     * @return a solid line created with LineSeparator
+     */
+    public static LineSeparator createLine() throws IOException {
         return new LineSeparator(new SolidLine(1f));
     }
     
+    /**
+     * This function will return text that is bolded, underlined, Times New Roman Font, 
+     * and a font size of 12.
+     *
+     * @return Text that is bolded and underlined
+     */
     private static Text BOLD_UNDERLINE(String text) throws IOException {
-        Text textBoldUnderline = new Text(text)
+        Text textBoldUnderline = new Text(text.toUpperCase())
             .setBold()
             .setUnderline(1f, -2)
             .setFont(PdfFontFactory.createFont(TIMES_ROMAN))
@@ -68,21 +98,37 @@ public class DocumentCreationHelper {
         return textBoldUnderline;
     }
 
+    /**
+     * This function will return text that is unerlined, Times New Roman Font, and font
+     * size 12.
+     *
+     * @return Text that is underlined
+     */
     private static Text UNDERLINE(String text) throws IOException {
-        Text textUnderline = new Text(text)
+        Text textUnderline = new Text(text.toUpperCase())
             .setUnderline(1f, -2)
             .setFont(PdfFontFactory.createFont(TIMES_ROMAN))
             .setFontSize(12);
         return textUnderline;
     }
 
+    /**
+     * This function will return text that is Times New Roman font and font size 12.
+     *
+     * @return Text that is not underlined and/or bolded
+     */
     private static Text SET_FONT(String text) throws IOException{
-        Text textNormal = new Text(text)
+        Text textNormal = new Text(text.toUpperCase())
             .setFont(PdfFontFactory.createFont(TIMES_ROMAN))
             .setFontSize(12);
         return textNormal;
     }
 
+    /**
+     * This function will return a table that has no borders and contains stops of pickups and deliveries.
+     *
+     * @return Table that is borderless and contains pickups and/or deliveries
+     */
     public static Table createBorderlessTable(ArrayList<Stop> stops, Stop.StopType type) throws IOException {
         int col = stops.size();
         int row = 5;
@@ -130,11 +176,9 @@ public class DocumentCreationHelper {
         Table stopTable = new Table(UnitValue.createPointArray(colWidth)).useAllAvailableWidth();
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
-                Cell cell = new Cell().add(stopData[i][j].toUpperCase()).setBorder(Border.NO_BORDER)
-                        .setFont(PdfFontFactory.createFont(TIMES_ROMAN)).setFontSize(12);
+                Cell cell = createCellWithFormat(stopData[i][j]);
                 if (i == 0) {
-                    cell.setBold().setUnderline(1f, -2)
-                            .setFont(PdfFontFactory.createFont(TIMES_ROMAN)).setFontSize(12);
+                    cell.setBold().setUnderline(1f, -2);
                 }
                 stopTable.addCell(cell);
             }
@@ -180,18 +224,23 @@ public class DocumentCreationHelper {
             .addTabStops(new TabStop(350, TabAlignment.LEFT))
             .add(BOLD_UNDERLINE(BILL_TO_TITLE))
             .add(new Tab())
-            .add(SET_FONT(LOAD_NUM + loadNum.toUpperCase()))
+            .add(SET_FONT(LOAD_NUM + POUND + loadNum))
             .add(new Text("\n"))
             .add(new Text("\n"))
-            .add(SET_FONT(billToInfo.getName().toUpperCase()))
+            .add(SET_FONT(billToInfo.getName()))
             .add(new Text("\n"))
-            .add(SET_FONT(billToInfo.getStreetAddress().toUpperCase()))
+            .add(SET_FONT(billToInfo.getStreetAddress()))
             .add(new Text("\n"))
-            .add(SET_FONT(billToInfo.getCity().toUpperCase() + ", " + billToInfo.getState().toUpperCase() + " " + Integer.toString(billToInfo.getZip())))
+            .add(SET_FONT(billToInfo.getCity() + ", " + billToInfo.getState() + " " + Integer.toString(billToInfo.getZip())))
             .add(new Text("\n"));
         return billToParagraph;
     }
 
+    /**
+     * This function will return if the load is a truck order not used.
+     *
+     * @return Paragraph of the truck order not used
+     */
     public static Paragraph truckOrderNotUsedCase(TotalInvoiceBalance balances) throws IOException {
         Paragraph costs = new Paragraph();
         if(balances.isTruckOrderNotUsed()) {
@@ -201,7 +250,7 @@ public class DocumentCreationHelper {
             String n = String.format("%.2f%n",balances.getRateAmount());
             costs.add(UNDERLINE(RATE_AMOUNT))
                 .add(new Tab())
-                .add(UNDERLINE("$"))
+                .add(UNDERLINE(DOLLAR_SIGN))
                 .add(SET_FONT(n));    
             String m = String.format("%.2f%n",balances.getTotalBalance());
             costs.add(SET_FONT(BAL_DUE))
@@ -211,10 +260,41 @@ public class DocumentCreationHelper {
         }
         return costs;
     }
-    
+
+    /**
+     * This function will return a paragraph containing new lines.
+     *
+     * @return Paragraph of the spacing
+     */
     public static Paragraph spacing() throws IOException {
      return new Paragraph().add("\n\n");      
     }
+
+    /**
+     * This function will return a cell that is formatted accourding to the order it comes in.
+     *
+     * @return Cell counting the account title, account value, or dollar sign
+     */
+    public static Cell checkUnderline(Integer num, String cellInfo, Integer size) throws IOException {
+        if (num == size-2) {
+            Cell cell = createCellUnderlined(cellInfo);
+            return cell;
+        }
+        else {
+            Cell cell = createCellWithFormat(cellInfo);
+            return cell;
+        }
+    }
+
+    /**
+     * This function will return a string that has been reformatted from a duble with 2 decimals.
+     *
+     * @return string containing a decimal value
+     */
+    public static String reformatDoubleValue(Double value) throws IOException {
+        return String.format("%.2f%n", value);
+    }
+
 
     /**
      * This function will create the total costs of the invoice, including
@@ -223,62 +303,42 @@ public class DocumentCreationHelper {
      * @return total cost section of the invoice
      */
     public static Table totalCosts(TotalInvoiceBalance balances) throws IOException {
-            ArrayList<Double> amountsVal = new ArrayList<Double>();
+            ArrayList<String> amountsVal = new ArrayList<String>();
             ArrayList<String> amountsTitle = new ArrayList<String>();
             
-            amountsVal.add(balances.getRateAmount());
+            amountsVal.add(reformatDoubleValue(balances.getRateAmount()));
             amountsTitle.add(RATE_AMOUNT);
 
             if (balances.getDetention() != 0.0) {
-                amountsVal.add(balances.getDetention());
+                amountsVal.add(reformatDoubleValue(balances.getDetention()));
                 amountsTitle.add(DETENTION);
             }
             if(balances.getLayover() != 0.0) {
-                amountsVal.add(balances.getLayover());
+                amountsVal.add(reformatDoubleValue(balances.getLayover()));
                 amountsTitle.add(LAYOVER);
             }
             if(balances.getAdvance() != 0.0) {
-                amountsVal.add(balances.getAdvance());
+                amountsVal.add(reformatDoubleValue(balances.getAdvance()));
                 amountsTitle.add(ADVANCE);
             }
             if(balances.getExtraStop() != 0.0) {
-                amountsVal.add(balances.getExtraStop());
+                amountsVal.add(reformatDoubleValue(balances.getExtraStop()));
                 amountsTitle.add(EXTRA_STOP);
             }
             if(balances.getLumper() != 0.0) {
-                amountsVal.add(balances.getLumper());
+                amountsVal.add(reformatDoubleValue(balances.getLumper()));
                 amountsTitle.add(LUMPER);
             }
             if(balances.getOther() != 0.0) {
-                amountsVal.add(balances.getOther());
+                amountsVal.add(reformatDoubleValue(balances.getOther()));
                 amountsTitle.add(OTHER);
             }
             amountsTitle.add(BAL_DUE);
-            amountsVal.add(balances.getTotalBalance());
+            amountsVal.add(reformatDoubleValue(balances.getTotalBalance()));
 
-            String reformat;
-                        
+            
             int col = 10;
             int row = amountsTitle.size();
-            
-            String[][] amounts = new String[row][col];
-            for (int i = 0; i < row; i++) {
-                for (int j = 0; j < col; j++) {
-                    if (j == 0) {
-                        amounts[i][j]= amountsTitle.get(i);
-                    }
-                    else if (j == 1) {
-                        amounts[i][j] = DOLLAR_SIGN;
-                    }
-                    else if (j == 2) {
-                        reformat = String.format("%.2f%n",amountsVal.get(i));
-                        amounts[i][j]= reformat;
-                    }
-                    else {
-                        amounts[i][j]= "0000000";
-                    }
-                }
-            }
 
             float[] colWidth = new float[col];
             for (int i = 0; i < col; i++) {
@@ -289,33 +349,33 @@ public class DocumentCreationHelper {
                 for (int i = 0; i < row; i++) {
                     for (int j = 0; j < col; j++) {
                         if (j < 3){
-                        Cell cell = new Cell().add(amounts[i][j]).setVerticalAlignment(VerticalAlignment.BOTTOM)
-                                .setFont(PdfFontFactory.createFont(TIMES_ROMAN)).setFontSize(12);
-                        if(j == 2){
-                            cell.setTextAlignment(TextAlignment.RIGHT);
-                        }
-                        if (i == amountsTitle.size()-2) {
-                            cell.setBorderTop(Border.NO_BORDER);
-                            cell.setBorderRight(Border.NO_BORDER);
-                            cell.setBorderLeft(Border.NO_BORDER);
+                            if (j == 0){
+                                costsTable.addCell(checkUnderline(i, amountsTitle.get(i), amountsTitle.size()));
+                            }
+                            else if (j == 1) {
+                                costsTable.addCell(checkUnderline(i, DOLLAR_SIGN, amountsTitle.size()));
+                            }
+                            else if (j == 2){
+                                    Cell cell = checkUnderline(i, amountsVal.get(i), amountsTitle.size());
+                                    cell.setTextAlignment(TextAlignment.RIGHT);
+                                    costsTable.addCell(cell);
+                            }
                         }
                         else {
-                            cell.setBorder(Border.NO_BORDER);
+                            Cell cell = new Cell().add("0000000").setBorder(Border.NO_BORDER).setFontColor(Color.WHITE);
+                            costsTable.addCell(cell);
                         }
-                        costsTable.addCell(cell);
-                    }
-                    else {
-                        Cell cell = new Cell().add(amounts[i][j]).setBorder(Border.NO_BORDER)
-                            .setFontColor(Color.WHITE);
-                        costsTable.addCell(cell);
-                    }
                     }
                 }
-        }
+            }
         return costsTable;
     }
 
-
+    /**
+     * This function will return the checks payable address.
+     *
+     * @return Paragraph of the check payable section
+     */
     public static Paragraph checksPayable() throws IOException {
         Paragraph costs = new Paragraph();
         costs.add(BOLD_UNDERLINE(CHECKS_PAYABLE_TITLE))
