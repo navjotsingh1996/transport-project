@@ -24,7 +24,7 @@ public class InvoicingModelTests {
     }
     @Test
     void stopTests() {
-        long date = Instant.now().toEpochMilli();
+        long date = Instant.now().getEpochSecond();
         Stop stop1 = new Stop(date, "stopName", "stopCity", "stopState", "stopAdd", 12345, PICKUP);
         Stop stop2 = new Stop(date, "stopName", "stopCity", "stopState", null, 12345, PICKUP);
         assertThat(stop1.getDate()).isEqualTo(date);
@@ -54,7 +54,7 @@ public class InvoicingModelTests {
 
     @Test
     void invoiceDtoTests() {
-        long date = Instant.now().toEpochMilli();
+        long date = Instant.now().getEpochSecond();
         CompanyInfo companyInfo1 = new CompanyInfo("TEST", "TEST", "TEST", "TE", 0);
         Stop stop1 = new Stop(date, "stopName", "stopCity", "stopState", "stopAdd", 12345, PICKUP);
         Stop stop2 = new Stop(date, "stopName", "stopCity", "stopState", "stopAdd", 12345, DELIVERY);
@@ -71,7 +71,7 @@ public class InvoicingModelTests {
 
     @Test
     void invoiceTests() {
-        long date = Instant.now().toEpochMilli();
+        long date = Instant.now().getEpochSecond();
         CompanyInfo companyInfo1 = new CompanyInfo("TEST", "TEST", "TEST", "TE", 0);
         Stop stop1 = new Stop(date, "stopName", "stopCity", "stopState", "stopAdd", 12345, PICKUP);
         Stop stop2 = new Stop(date, "stopName", "stopCity", "stopState", "stopAdd", 12345, DELIVERY);

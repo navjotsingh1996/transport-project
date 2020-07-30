@@ -20,11 +20,11 @@ import static org.mockito.Mockito.*;
 class InvoicingManagerTests {
     private final CompanyInfo companyInfoTest1 = new CompanyInfo("test", "test", "test", "TE", 95212);
     private final TotalInvoiceBalance totalInvoiceBalanceTest1 = new TotalInvoiceBalance(10.10, false, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    private final Stop pickup = new Stop(Instant.now().toEpochMilli(), "PICKUP", "TEST", "TE", "TEST", 12345, Stop.StopType.PICKUP);
-    private final Stop delivery = new Stop(Instant.now().toEpochMilli(), "DELIVERY", "TEST", "TE", "TEST", 12345, Stop.StopType.DELIVERY);
-    private final Invoice testInv1 = new Invoice("1234", Instant.now().toEpochMilli(),
+    private final Stop pickup = new Stop(Instant.now().getEpochSecond(), "PICKUP", "TEST", "TE", "TEST", 12345, Stop.StopType.PICKUP);
+    private final Stop delivery = new Stop(Instant.now().getEpochSecond(), "DELIVERY", "TEST", "TE", "TEST", 12345, Stop.StopType.DELIVERY);
+    private final Invoice testInv1 = new Invoice("1234", Instant.now().getEpochSecond(),
             companyInfoTest1, Arrays.asList(pickup, delivery), totalInvoiceBalanceTest1);
-    private final InvoiceDto testInvDto = new InvoiceDto(0L, "1234", Instant.now().toEpochMilli(),
+    private final InvoiceDto testInvDto = new InvoiceDto(0L, "1234", Instant.now().getEpochSecond(),
             companyInfoTest1, Arrays.asList(pickup, delivery), totalInvoiceBalanceTest1);
 
     private InvoicingRepository irMock;
@@ -67,8 +67,8 @@ class InvoicingManagerTests {
     void invalidStopsTests() {
         InvoiceDto invoiceNoStops = new InvoiceDto(testInvDto.getId(), testInvDto.getLoadNumber(), testInvDto.getDate(),
                 testInvDto.getBillTo(), new ArrayList<>(), testInvDto.getBalances());
-        Stop pickupStop = new Stop(Instant.now().toEpochMilli(), "pickup", "test", "TE", "Test", 12345, Stop.StopType.PICKUP);
-        Stop deliveryStop = new Stop(Instant.now().toEpochMilli(), "delivery", "test", "TE", "Test", 12345, Stop.StopType.DELIVERY);
+        Stop pickupStop = new Stop(Instant.now().getEpochSecond(), "pickup", "test", "TE", "Test", 12345, Stop.StopType.PICKUP);
+        Stop deliveryStop = new Stop(Instant.now().getEpochSecond(), "delivery", "test", "TE", "Test", 12345, Stop.StopType.DELIVERY);
         InvoiceDto invoiceSameStops = new InvoiceDto(testInvDto.getId(), testInvDto.getLoadNumber(), testInvDto.getDate(),
                 testInvDto.getBillTo(), Arrays.asList(pickupStop, pickupStop), testInvDto.getBalances());
         InvoiceDto invoiceOneStop = new InvoiceDto(testInvDto.getId(), testInvDto.getLoadNumber(), testInvDto.getDate(),

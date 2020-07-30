@@ -3,11 +3,7 @@ package com.transport.services.invoicing;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.border.Border;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.property.UnitValue;
 import com.transport.commons.DocumentCreationHelper;
 import com.transport.services.invoicing.models.*;
 import lombok.NonNull;
@@ -18,9 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @Slf4j
@@ -96,7 +90,7 @@ public class InvoicingManager implements InvoiceService {
      * @return an entity from the dto
      */
     Invoice toEntity(InvoiceDto dto) {
-        long date = Instant.now().toEpochMilli();
+        long date = Instant.now().getEpochSecond();
         if (dto.getDate() != 0) {
             date = dto.getDate();
         }
@@ -107,8 +101,7 @@ public class InvoicingManager implements InvoiceService {
     public String createInvoice(InvoiceDto invoice) throws IOException {
         validateStops(invoice.getStops());
         toEntity(invoice);
-        ir.save(toEntity(invoice));
-        return createInvoicePdf(invoice);
+        return createInvoicePdf(toDto(ir.save(toEntity(invoice))));
 
     }
 
@@ -138,10 +131,9 @@ public class InvoicingManager implements InvoiceService {
         inv.setBalances(invoice.getBalances());
         inv.setStops(invoice.getStops());
         inv.setBillTo(invoice.getBillTo());
-        inv.setDate(Instant.now().toEpochMilli());
+        inv.setDate(Instant.now().getEpochSecond());
         inv.setLoadNumber(invoice.getLoadNumber());
-        ir.save(inv);
-        return createInvoicePdf(invoice);
+        return createInvoicePdf(toDto(ir.save(inv)));
     }
 
     /**
@@ -185,11 +177,11 @@ public class InvoicingManager implements InvoiceService {
 
     @Override
     public List<CompanyInfo> searchBillTo(String name, String address) {
-        Map<String, CompanyInfo> addresses =  new HashMap<>();
+        Map<String, CompanyInfo> addresses = new HashMap<>();
 
         ir.findAllByCompanyInfoNameOrAddress(name, address).forEach(billTo -> {
             String add = billTo.getName() + billTo.getStreetAddress() + billTo.getCity() + billTo.getState() + billTo.getZip();
-            addresses.put(add.replaceAll("\\s+",""), billTo);
+            addresses.put(add.replaceAll("\\s+", ""), billTo);
         });
         return new ArrayList<>(addresses.values());
     }
@@ -208,11 +200,11 @@ public class InvoicingManager implements InvoiceService {
                 }
             });
         });
-        Map<String, Stop> addresses =  new HashMap<>();
+        Map<String, Stop> addresses = new HashMap<>();
 
         stops.forEach(stop -> {
             String add = stop.getName() + stop.getStreetAddress() + stop.getCityStateZip();
-            addresses.put(add.replaceAll("\\s+",""), stop);
+            addresses.put(add.replaceAll("\\s+", ""), stop);
         });
         return new ArrayList<>(addresses.values());
     }

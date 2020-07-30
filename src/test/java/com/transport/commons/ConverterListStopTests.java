@@ -14,7 +14,7 @@ public class ConverterListStopTests {
     private final ConverterListStop converterListStop = new ConverterListStop();
 
     private static Stop newStop(int index) {
-        return new Stop(Instant.now().toEpochMilli(), "test" + index, "testCity" + index,
+        return new Stop(Instant.now().getEpochSecond(), "test" + index, "testCity" + index,
                 "testState" + index, "testAddress" + index, index, index % 2 == 0 ? Stop.StopType.PICKUP : Stop.StopType.DELIVERY);
     }
 
