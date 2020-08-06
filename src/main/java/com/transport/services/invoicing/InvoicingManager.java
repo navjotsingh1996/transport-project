@@ -94,7 +94,10 @@ public class InvoicingManager implements InvoiceService {
         if (dto.getDate() != 0) {
             date = dto.getDate();
         }
-        return new Invoice(dto.getLoadNumber(), date, dto.getBillTo(), dto.getStops(), dto.getBalances());
+        Invoice invoice = new Invoice(
+                dto.getId(), dto.getLoadNumber(), date, dto.getBillTo(), dto.getStops(), dto.getBalances());
+        invoice.setId(dto.getId());
+        return invoice;
     }
 
     @Override
